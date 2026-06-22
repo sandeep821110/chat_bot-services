@@ -21,3 +21,24 @@ export const connectRedis = async () => {
     return null;
   }
 };
+
+export const isRedisAvailable = () => client !== null && client.isOpen;
+
+export const getRedisStatus = () => ({
+  connected: client !== null && client.isOpen,
+});
+
+export const checkRedisHealth = async () => {
+  if (!client || !client.isOpen) {
+    return { status: "unhealthy", message: "Redis not connected" };
+  }
+  try {
+    const pong = await Promise.race([
+      client.ping(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Ping timeout")), 3000))
+    ]);
+    return { status: "healthy", message: pong };
+  } catch (error) {
+    return { status: "unhealthy", message: error.message };
+  }
+};

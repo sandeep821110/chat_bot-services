@@ -22,3 +22,10 @@ export const connectDB = async () => {
 };
 
 export const isMongoReady = () => mongoose.connection.readyState === 1;
+
+export const checkDBHealth = () => {
+  const state = mongoose.connection.readyState;
+  const stateMap = { 0: "disconnected", 1: "connected", 2: "connecting", 3: "disconnecting" };
+  const status = state === 1 ? "healthy" : "unhealthy";
+  return { status, message: `MongoDB is ${stateMap[state] || "unknown"}` };
+};
